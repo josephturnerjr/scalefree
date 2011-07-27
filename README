@@ -1,0 +1,5 @@
+ScaleFree (Friendstellation) is a little weekend project I put together to visualize your Facebook friend network. It uses HTML5 Canvas for the drawing, and implements a force-based graph drawer to draw you, your friends, and your friends friends. 
+
+It is actually a project I had envisioned years ago, before Facebook rose to prominence. I had implemented years ago in OpenGL using text files as the graph input. This one is much nicer.
+
+This project was my first project to use the HTML5 Canvas, and my first real use of the Facebook Graph API. Really, it was one of my first uses of Javascript at all.

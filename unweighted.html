@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="Description" content="Visualize your Facebook social network with ScaleFree: (Friendstellation)" />
+    <meta name="Keywords" content="Facebook visualizer, scalefree, Facebook graph visualization" />
+    <meta name="Robots" content="all" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://connect.facebook.net/en_US/all.js"></script>
+    <script type="text/javascript" src="scalefree.js"></script>
+    <script type="text/javascript" src="jquery.mousewheel.min.js"></script>
+    <script>
+        var queue = new Array();
+        function create_graph(){
+            FB.api("/me", create_user);
+        }
+        function create_user(user){
+            you = new Person(user, 0, 0, 1000.0);
+            friends_[user.id] = you;
+            queue.unshift(function(){FB.api("/me/friends", function(data){create_friends(you, data.data, 2);})});
+            setInterval(iterate, 20);
+            setInterval(pump, 200);
+        }
+        function pump(){
+            if(queue.length == 0)
+                return;
+            queue.pop()();
+        }
+        function create_friends(user, friends, level){
+            user.mass = 20.0 + friends.length * 5.0;
+            for(i in friends){
+                f = friends[i];
+                handle_friend(f, user, level);
+            }
+        }
+        function handle_friend(f, user, level){
+            var fr;
+            if(level == 1){
+                if(friends_[f] != undefined){
+                    fr = friends_[f];
+                    if(fr.edges[user.id] == undefined && fr.id != user.id){
+                        fr.edges[user.id] = new Edge(user, 10 * level*level*level);
+                        user.edges[fr.id] = new Edge(fr, 10 * level*level*level);
+                    }
+                }
+                return;
+            }
+            if(friends_[f.id] == undefined){
+                // user hasn't been seen before
+                fr = new Person(f, Math.random() * WIDTH - WIDTH/2, Math.random() * HEIGHT - HEIGHT/2, 100.0);
+                friends_[f.id] = fr;
+            }
+            fr = friends_[f.id];
+            if(fr.edges[user.id] == undefined && fr.id != user.id){
+                fr.edges[user.id] = new Edge(user, level);
+                user.edges[fr.id] = new Edge(fr, level);
+            }
+            if(level - 1 > 0)
+                queue.unshift(function(){
+                    FB.api({
+                        method: 'friends.getMutualFriends',
+                        target_uid: fr.id
+                    }, function(data){create_friends(fr, data, level - 1);});
+                });
+        }
+        $(document).ready(function(){
+            $("#logout_button").hide();
+            FB.getLoginStatus(function(response){
+                    if(response.session){
+                        draw_logged_in();
+                        init();
+                    }
+                });
+        });
+        function draw_logged_in(){
+            $("#login_button").hide();
+            $("#logout_button").show();
+        }
+        function draw_logged_out(){
+            $("#logout_button").hide();
+            $("#login_button").show();
+        }
+    </script>
+    <title>ScaleFree: (Friendstellation)</title>
+</head>
+<body>
+<div id="content_body">
+    <div id="graph_div">
+        <canvas id="graph" width="600" height="600"></canvas>
+    </div>
+    <div id="sidebar">
+        <h1>ScaleFree: (Friendstellation)</h1>
+        <div id="fb_status">
+        <div id="login_button">
+            <p>Log into facebook: <fb:login-button>Login</fb:login-button></p>
+        </div>
+        <div id="logout_button">
+            <p>You're logged in. <a href='#' onclick="FB.logout(function(){}); return false;">Log out of Facebook</a>.</p>
+        </div>
+        </div>
+            <p><em>Use the m and n keys to zoom in and out. Use the arrow keys to navigate. The links among your friends will fill in over time. Zoom in far enough, and your friends' names will appear.</em></p>
+            <h3>What is ScaleFree?</h3>
+            <p>ScaleFree allows you to visualize your network of Facebook friends and the interconnections you share. The points represent you and your friends, while the lines represent your friendship. Initially, all points are placed randomly. The graph is then animated by applying physical forces: the lines between people pull them together, while the people themselves repel each other at very close distances. After some time (perhaps a very long time if you have many friends), the graph will settle into a steady state. 
+</p>
+<p>The steady state will usually present interesting information about the structure of your friendships. Groups of related or close friends will be pulled together very tightly, and these groups may only have a few links between them. Zoom in to see the names of your friends overlayed on the graph.</p>
+    </div>
+</div>
+<div id="fb-root"></div>
+<script>
+    FB.init({ 
+        appId:'YOUR_APP_ID', cookie:true, 
+        status:true, xfbml:true 
+    });
+    FB.Event.subscribe('auth.sessionChange', function(response) {
+        if (response.session) {
+            // A user has logged in, and a new cookie has been saved
+            draw_logged_in();
+            init();
+        } else {
+            draw_logged_out();
+            // The user has logged out, and the cookie has been cleared
+        }
+    });
+</script>
+</body>
+</html>

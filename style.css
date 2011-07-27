@@ -1,0 +1,59 @@
+body{
+    font-family: "Helvetica", "Arial", sans-serif;
+    margin: 0px;
+    padding: 0px;
+    background: #000000;
+}
+h1{
+    margin: 0px;
+}
+#home{
+    padding: 4px;
+    margin: 0px;
+}
+#home a{
+    color: white;
+}
+#home a:hover {
+    color: white;
+}
+#sidebar{
+    margin: 0px;
+    padding-left: 12px;
+    padding-right: 12px;
+    width: 336px;
+    height: 600px;
+    background: #555555;
+    color: white;
+    float: left;
+}
+#sidebar p{
+    font-size:0.8em;
+}
+
+#sidebar a{
+    color: white;
+}
+#graph_div{
+    float: left;
+}
+#fb_status{
+    background: #222222;
+    border: solid 1px white;
+    margin-top: 12px;
+}
+#fb_status div{
+    padding: 8px;
+}
+#content_body{
+    margin-top: 10px;
+    width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.invisible{
+    display: none;
+}
+canvas{
+    background: black;
+}
